@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+import sys
+import urllib.request
+import hashlib
+import lxml.html
+
+import gi
+
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+gi.require_version('AppIndicator3', '0.1')
+from gi.repository import AppIndicator3 as appindicator
+from gi.repository import GLib
+
+gi.require_version('Notify', '0.7')
+from gi.repository import Notify as notify
+
+import translate_widget
+
+class MyIndicator:
+    def __init__(self):
+        self.hash = ''
+        self.indicator_id = 'test'
+        self.ind = appindicator.Indicator.new(
+            self.indicator_id,
+            "/home/dubbinary/DEV/PycharmProjects/google_translate_indicator/img/logo.ico",
+            appindicator.IndicatorCategory.APPLICATION_STATUS)
+        self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
+        # notify.init(self.indicator_id)
+        self.ind.connect("new-label", self.notifyer)
+        self.ind.set_label("English->Russian","guide")
+        self.menu = Gtk.Menu()
+
+        # Translate
+        item = Gtk.MenuItem()
+        item.set_label("Translate")
+        item.connect("activate", self.translate)
+        self.menu.append(item)
+
+        # From
+        item = Gtk.MenuItem()
+        item.set_label("From")
+        item.connect("activate", self.clear)
+        menu = Gtk.Menu()
+        for menu_item in range(5):
+            menu.append(Gtk.MenuItem(str(menu_item)))
+        item.set_submenu(menu)
+        self.menu.append(item)
+
+        # To
+        item = Gtk.MenuItem()
+        item.set_label("To")
+        item.connect("activate", self.clear)
+        menu = Gtk.Menu()
+        for menu_item in range(5):
+            menu.append(Gtk.MenuItem(str(menu_item)))
+        item.set_submenu(menu)
+        self.menu.append(item)
+
+        # Exit
+        item = Gtk.MenuItem()
+        item.set_label("Exit")
+        item.connect("activate", self.quit)
+        self.menu.append(item)
+
+        self.menu.show_all()
+        self.ind.set_menu(self.menu)
+
+    def notifyer(self,ind_obj,new_label,new_guide):
+        notify.Notification.new("Signal", "Label changed!", None).show()
+
+    def main(self):
+        notify.init(self.indicator_id)
+        Gtk.main()
+
+    def translate(self, widget):
+        translate_widget.start()
+
+    def clear(self, widget):
+        self.hash = self.remote_hash
+        self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
+
+
+    def quit(self, widget):
+        notify.uninit()
+        Gtk.main_quit()
+
+
+if __name__ == '__main__':
+    indicator = MyIndicator();
+    indicator.main();
