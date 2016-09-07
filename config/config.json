@@ -1,0 +1,30 @@
+{
+  "lang_from": "en",
+  "lang_to": "ru",
+  "languages": {
+    "ar": "Arabic",
+    "ca": "Catalan",
+    "da": "Danish",
+    "de": "German",
+    "el": "Greek",
+    "en": "English",
+    "es": "Spanish",
+    "eu": "Basque",
+    "fi": "Finnish",
+    "fr": "French",
+    "gl": "Galician",
+    "it": "Italian",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "nl": "Dutch",
+    "no": "Norwegian",
+    "pt": "Portuguese",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sv": "Swedish",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "zh-CN": "Chinese Simplified",
+    "zh-TW": "Chinese Traditional"
+  }
+}

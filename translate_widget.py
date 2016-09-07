@@ -4,7 +4,7 @@ from gi.repository import Gtk, GObject
 
 class TranslateWindow(Gtk.Window):
 
-    def __init__(self):
+    def __init__(self, model):
         Gtk.Window.__init__(self, title="Entry Demo")
         self.set_size_request(200, 100)
 

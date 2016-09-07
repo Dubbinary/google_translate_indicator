@@ -18,19 +18,26 @@ gi.require_version('Notify', '0.7')
 from gi.repository import Notify as notify
 
 import translate_widget
+from model_data import ModelData
 
-class MyIndicator:
+class GTIndicator:
+
+    languages = None
+
     def __init__(self):
+        global languages
+        self.model = ModelData()
+        languages = self.model.get_languages()
         self.hash = ''
-        self.indicator_id = 'test'
+        self.indicator_id = 'google_translate_indicator'
         self.ind = appindicator.Indicator.new(
             self.indicator_id,
             "/home/dubbinary/DEV/PycharmProjects/google_translate_indicator/img/logo.ico",
             appindicator.IndicatorCategory.APPLICATION_STATUS)
         self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
-        # notify.init(self.indicator_id)
         self.ind.connect("new-label", self.notifyer)
-        self.ind.set_label("English->Russian","guide")
+        self.ind.set_label(languages[self.model.get_lang_from()]+"->"+
+        languages[self.model.get_lang_to()],"None")
         self.menu = Gtk.Menu()
 
         # Translate
@@ -42,52 +49,93 @@ class MyIndicator:
         # From
         item = Gtk.MenuItem()
         item.set_label("From")
-        item.connect("activate", self.clear)
         menu = Gtk.Menu()
-        for menu_item in range(5):
-            menu.append(Gtk.MenuItem(str(menu_item)))
+        for lang_val in languages.values():
+            menu_item = Gtk.MenuItem(lang_val)
+            menu_item.connect("activate", self.select_lang_from)
+            menu.append(menu_item)
         item.set_submenu(menu)
         self.menu.append(item)
 
         # To
         item = Gtk.MenuItem()
         item.set_label("To")
-        item.connect("activate", self.clear)
         menu = Gtk.Menu()
-        for menu_item in range(5):
-            menu.append(Gtk.MenuItem(str(menu_item)))
+        for lang_val in languages.values():
+            menu_item = Gtk.MenuItem(lang_val)
+            menu_item.connect("activate", self.select_lang_to)
+            menu.append(menu_item)
         item.set_submenu(menu)
         self.menu.append(item)
 
         # Exit
         item = Gtk.MenuItem()
-        item.set_label("Exit")
+        item.set_label("Quit")
         item.connect("activate", self.quit)
         self.menu.append(item)
 
         self.menu.show_all()
         self.ind.set_menu(self.menu)
 
-    def notifyer(self,ind_obj,new_label,new_guide):
-        notify.Notification.new("Signal", "Label changed!", None).show()
-
     def main(self):
         notify.init(self.indicator_id)
         Gtk.main()
 
+#
+########################### SIGNAL HENDLERS ####################################
+#
+    def notifyer(self,widget,new_label,new_guide):
+        notify.Notification.new("New translate rule", new_label, None).show()
+
     def translate(self, widget):
         translate_widget.start()
 
-    def clear(self, widget):
-        self.hash = self.remote_hash
-        self.ind.set_status(appindicator.IndicatorStatus.ACTIVE)
+    def select_lang_from(self, widget):
+        new_lang = self.get_lang_by_title(widget.get_label())
+        if(new_lang == self.model.get_lang_from()):
+            return
+        if(not self.is_swap_languages(new_lang)):
+            self.model.set_lang_from(new_lang)
+        self.update_app_ind_label()
 
+    def select_lang_to(self, widget):
+        new_lang = self.get_lang_by_title(widget.get_label())
+        if(new_lang == self.model.get_lang_to()):
+            return
+        if(not self.is_swap_languages(new_lang)):
+            self.model.set_lang_to(new_lang)
+        self.update_app_ind_label()
 
     def quit(self, widget):
         notify.uninit()
         Gtk.main_quit()
 
+##
+################################## ADDITIONAL METHODS ##########################
+##
+    def get_lang_by_title(self, lang_title):
+        return list(languages \
+        .keys())[list(languages.values()) \
+        .index(lang_title)]
+
+    def is_swap_languages(self, new_lang):
+        lang_from = self.model.get_lang_from()
+        lang_to = self.model.get_lang_to()
+        if(new_lang == lang_to or new_lang == lang_from):
+            self.model.set_lang_from(lang_to)
+            self.model.set_lang_to(lang_from)
+            return True
+        else:
+            return False
+
+    def update_app_ind_label(self):
+        self.ind.set_label(languages[self.model.get_lang_from()]+"->"+
+            languages[self.model.get_lang_to()], "None")
+
+#
+######################### GTIndicator CLASS END ################################
+#
 
 if __name__ == '__main__':
-    indicator = MyIndicator();
+    indicator = GTIndicator();
     indicator.main();
