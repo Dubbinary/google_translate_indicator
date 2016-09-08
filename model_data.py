@@ -5,7 +5,7 @@ class ModelData:
     config_path = "./config/config.json"
 
     def __init__(self):
-        self.config = self.load_config(ModelData.config_path)
+        self.config = self.load_config()
         self.lang_from = self.config["lang_from"]
         self.lang_to = self.config["lang_to"]
         self.languages = self.config["languages"]
@@ -25,8 +25,14 @@ class ModelData:
     def get_languages(self):
         return self.languages
 
-    def load_config(self, config_file):
+    def load_config(self):
         config = {}
-        with open(config_file, 'r') as rfile:
+        with open(ModelData.config_path, 'r') as rfile:
             config.update(json.load(rfile))
         return config
+
+    def update_config(self):
+        self.config["lang_from"] = self.lang_from
+        self.config["lang_to"] = self.lang_to
+        with open(ModelData.config_path, 'w') as wfile:
+            json.dump(self.config, wfile)

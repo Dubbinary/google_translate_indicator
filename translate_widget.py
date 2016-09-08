@@ -12,29 +12,23 @@ class TranslateWindow(Gtk.Window):
 
         vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.add(vbox)
-
-        self.entry = Gtk.Entry()
-        self.entry.set_text("Hello World")
-        icon_name = "system-search-symbolic"
-        self.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY,
-            icon_name)
-        vbox.pack_start(self.entry, True, True, 0)
-
         hbox = Gtk.Box(spacing=6)
         vbox.pack_start(hbox, True, True, 0)
 
-        self.check_editable = Gtk.CheckButton("Editable")
-        self.check_editable.connect("toggled", self.on_editable_toggled)
-        self.check_editable.set_active(True)
-        hbox.pack_start(self.check_editable, True, True, 0)
+        self.input_from = Gtk.Entry()
+        icon_name = "system-search-symbolic"
+        self.input_from.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY,
+            icon_name)
+        hbox.pack_start(self.input_from, True, True, 0)
+
+        self.translate_button = Gtk.Button.new_with_label("Translate")
+        self.translate_button.connect("clicked", self.translate_clicked)
+        hbox.pack_start(self.translate_button, True, True, 0)
+
+        self.input_to = Gtk.Entry()
+        self.input_to.set_editable(False)
+        vbox.pack_start(self.input_to, True, True, 0)
 
 
-    def on_editable_toggled(self, button):
-        value = button.get_active()
-        self.entry.set_editable(value)
-
-def start():
-    win = TranslateWindow()
-    win.connect("delete-event", Gtk.main_quit)
-    win.show_all()
-    Gtk.main()
+    def translate_clicked(self, button):
+        self.input_to.set_text(self.input_from.get_text()[::-1])
