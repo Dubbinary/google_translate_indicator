@@ -7,7 +7,7 @@ import os
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 gi.require_version('AppIndicator3', '0.1')
 from gi.repository import AppIndicator3 as appindicator
@@ -32,7 +32,9 @@ class GTIndicator:
 
     def main(self):
         notify.init(self.indicator_id)
+        self.init_clipboard()
         Gtk.main()
+
 
 #
 ########################### SIGNAL HENDLERS ####################################
@@ -43,6 +45,11 @@ class GTIndicator:
     def translate(self, widget):
         if(not GTIndicator.is_widget_running):
             self.start_widget()
+        # TODO add grab focus feature
+        # else:
+        #     self.tr_widget.get_toplevel().child_focus(Gtk.DIR_TAB_FORWARD)
+
+
 
     def select_lang_from(self, widget):
         new_lang = self.get_lang_by_title(widget.get_label())
@@ -151,11 +158,20 @@ class GTIndicator:
             self.languages[self.model.get_lang_to()], "None")
 
     def start_widget(self):
-        win = TranslateWindow(self.model)
-        win.connect("delete-event", self.on_delete_widget)
-        win.show_all()
+        self.tr_widget = TranslateWindow(self.model)
+        self.tr_widget.connect("delete-event", self.on_delete_widget)
+        self.tr_widget.show_all()
         GTIndicator.is_widget_running = True
         Gtk.main()
+
+    def init_clipboard(self):
+        self.clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        text = self.clipboard.wait_for_text()
+
+        # Store the text in clipboard
+        # self.clipboard.set_text("Test clipboard", -1)
+        # self.clipboard.store()
+        print(text)
 
 
 #
